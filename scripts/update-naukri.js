@@ -358,7 +358,7 @@ function getRenamedResumePath() {
   const year = parts.find(p => p.type === 'year').value;
 
   const dateStr = day + month + year;  // e.g. 22Jun2026
-  const filename = 'Saurav_Thakur_Updated_Resume_' + dateStr + '.pdf';
+  const filename = 'Dhirendra_Singh_Updated_Resume_' + dateStr + '.pdf';
   return path.join(path.dirname(RESUME_PATH), filename);
 }
 
