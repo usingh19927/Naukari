@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Naukri Auto Resume Updater — Project Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --border:    #2a2d3e;
+    --accent:    #4f8ef7;
+    --accent2:   #a78bfa;
+    --green:     #34d399;
+    --orange:    #fb923c;
+    --red:       #f87171;
+    --text:      #e2e8f0;
+    --muted:     #94a3b8;
+    --card:      #1e2130;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    padding: 0 0 80px 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0f1117 0%, #1a1040 50%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 40px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.4);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 36px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+  .stat-label { font-size: 13px; color: var(--muted); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── SECTION ── */
+  .section { padding: 64px 0 0; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    color: var(--muted);
+    margin-bottom: 36px;
+    font-size: 15px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 16px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+
+  /* ── PROBLEM / SOLUTION ── */
+  .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 0; }
+  @media (max-width: 640px) { .ps-grid { grid-template-columns: 1fr; } }
+  .problem-card {
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .solution-card {
+    background: rgba(52,211,153,0.06);
+    border: 1px solid rgba(52,211,153,0.25);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .ps-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .problem-card .ps-title { color: var(--red); }
+  .solution-card .ps-title { color: var(--green); }
+  .ps-list { list-style: none; }
+  .ps-list li { padding: 6px 0; font-size: 14px; color: var(--muted); display: flex; gap: 8px; }
+  .ps-list li::before { content: '•'; flex-shrink: 0; }
+  .problem-card .ps-list li::before { color: var(--red); }
+  .solution-card .ps-list li::before { color: var(--green); }
+
+  /* ── FLOW ── */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% - 8px);
+    background: linear-gradient(180deg, var(--border) 0%, transparent 100%);
+  }
+  .flow-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-content { padding-bottom: 32px; flex: 1; }
+  .flow-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .flow-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .flow-tag {
+    display: inline-block;
+    background: rgba(79,142,247,0.12);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+  .flow-tag.green { background: rgba(52,211,153,0.12); color: var(--green); }
+  .flow-tag.purple { background: rgba(167,139,250,0.12); color: var(--accent2); }
+  .flow-tag.orange { background: rgba(251,146,60,0.12); color: var(--orange); }
+
+  /* ── SECRETS TABLE ── */
+  .secrets-table { width: 100%; border-collapse: collapse; }
+  .secrets-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .secrets-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(42,45,62,0.5);
+    vertical-align: top;
+  }
+  .secrets-table tr:last-child td { border-bottom: none; }
+  .secret-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .secret-example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── GMAIL STEPS ── */
+  .gmail-steps { counter-reset: gstep; }
+  .gmail-step {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .gmail-step:last-child { border-bottom: none; }
+  .gnum {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .gmail-step-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .gmail-step-desc { font-size: 13px; color: var(--muted); }
+  .link {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-decoration: none;
+    background: rgba(79,142,247,0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0d0f18;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: #c9d1d9;
+  }
+  .code-block .c-green { color: #34d399; }
+  .code-block .c-blue  { color: #60a5fa; }
+  .code-block .c-gray  { color: #64748b; }
+  .code-block .c-orange{ color: #fb923c; }
+
+  /* ── TECH STACK ── */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .tech-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .tech-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+  .tech-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .tech-role { font-size: 12px; color: var(--muted); }
+
+  /* ── FILE TREE ── */
+  .file-tree {
+    background: #0d0f18;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+  }
+  .ft-folder { color: var(--accent); }
+  .ft-file   { color: var(--text); }
+  .ft-comment{ color: var(--muted); }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: rgba(79,142,247,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .highlight strong { color: var(--text); }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 64px 0 0; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 40px 32px 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ─────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="badge">Final Year Project</div>
+  <h1>Naukri Auto Resume Updater</h1>
+  <p>A bot that logs into Naukri every day at 10 AM, reads your OTP from Gmail automatically, and uploads your resume — all without you touching anything.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <span class="stat-label">Manual clicks per day</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">10 AM</span>
+      <span class="stat-label">Runs automatically</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">Free</span>
+      <span class="stat-label">GitHub Actions</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── PROBLEM & SOLUTION ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">Why this project</div>
+    <div class="section-title">The Problem & Our Solution</div>
+    <div class="section-sub">On Naukri, recruiters see recently updated resumes first. Most job seekers don't know this.</div>
+
+    <div class="ps-grid">
+      <div class="problem-card">
+        <div class="ps-title">❌ The Problem</div>
+        <ul class="ps-list">
+          <li>Naukri sorts candidates by last resume update date</li>
+          <li>You have to log in manually every single day</li>
+          <li>People forget — their profile sinks to the bottom</li>
+          <li>Recruiters never find you even if you're qualified</li>
+        </ul>
+      </div>
+      <div class="solution-card">
+        <div class="ps-title">✅ Our Solution</div>
+        <ul class="ps-list">
+          <li>A bot runs every day at 10 AM on GitHub's servers</li>
+          <li>Logs in, handles OTP, uploads resume automatically</li>
+          <li>Renames file with today's date so Naukri sees it as new</li>
+          <li>Your profile stays at the top — always visible to recruiters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS FLOW ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Step-by-Step Flow</div>
+    <div class="section-sub">This is exactly what happens every morning at 10 AM IST, in order.</div>
+
+    <div class="card">
+      <div class="flow">
+
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <div class="flow-title">GitHub wakes up the bot</div>
+            <div class="flow-desc">GitHub Actions has a scheduler — like a cron job. Every day at 10 AM IST it automatically starts a fresh Ubuntu computer on GitHub's servers and runs our code.</div>
+            <span class="flow-tag">Automated — no human needed</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <div class="flow-title">Opens Naukri in a hidden browser</div>
+            <div class="flow-desc">We use Playwright — a tool that controls a real Chrome browser but invisibly (called "headless"). It goes to naukri.com/login and types in your email and password just like a human would.</div>
+            <span class="flow-tag blue" style="background:rgba(167,139,250,0.12);color:#a78bfa;">Playwright + Stealth Plugin</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <div class="flow-title">Naukri sends an OTP to your Gmail</div>
+            <div class="flow-desc">Because GitHub's server is a new/unknown device every time, Naukri asks for an OTP to verify it's really you. It sends a 6-digit code to your registered email with the subject "Your OTP for logging in Naukri account".</div>
+            <span class="flow-tag orange">Security step by Naukri</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <div class="flow-title">Bot reads the OTP from Gmail automatically</div>
+            <div class="flow-desc">This is the smartest part. Our script connects to your Gmail using IMAP (an email protocol) with an App Password. It searches your inbox for emails from the last 5 minutes with that exact subject, opens it, and extracts the 6-digit number.</div>
+            <span class="flow-tag green">IMAP + Gmail App Password</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <div class="flow-title">Types the OTP and clicks Verify</div>
+            <div class="flow-desc">The bot types each digit of the OTP into Naukri's 6 input boxes and clicks the Verify button — exactly like a human would.</div>
+            <span class="flow-tag">Auto login complete</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <div class="flow-title">Renames your resume with today's date</div>
+            <div class="flow-desc">Before uploading, the script renames your PDF from resume.pdf to something like <strong style="color:#e2e8f0;">Saurav_Thakur_Updated_Resume_21Jun2026.pdf</strong> — so Naukri knows it's a fresh upload for today.</div>
+            <span class="flow-tag purple">Date: auto-generated daily</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">7</div>
+          <div class="flow-content">
+            <div class="flow-title">Uploads the resume to your profile</div>
+            <div class="flow-desc">Navigates to your Naukri profile page and uploads the renamed PDF. Your profile's "last updated" date is now today — putting you back at the top of recruiter searches.</div>
+            <span class="flow-tag green">✓ Done — profile refreshed</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TECH STACK ─────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">Technology Used</div>
+    <div class="section-title">Tools & Libraries</div>
+    <div class="section-sub">Each tool has one specific job in the pipeline.</div>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <span class="tech-icon">⚙️</span>
+        <div class="tech-name">GitHub Actions</div>
+        <div class="tech-role">Runs the code daily at 10 AM — free cloud scheduler</div>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon">🎭</span>
+        <div class="tech-name">Playwright</div>
+        <div class="tech-role">Controls the Chrome browser invisibly to log in and upload</div>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon">🥷</span>
+        <div class="tech-name">Stealth Plugin</div>
+        <div class="tech-role">Hides the fact that a bot is running so Naukri doesn't block it</div>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon">📬</span>
+        <div class="tech-name">ImapFlow</div>
+        <div class="tech-role">Connects to Gmail to read and extract the OTP from the email</div>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon">📄</span>
+        <div class="tech-name">Mailparser</div>
+        <div class="tech-role">Parses the raw email content to get readable text from HTML</div>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon">🟢</span>
+        <div class="tech-name">Node.js</div>
+        <div class="tech-role">The programming language — runs all the automation logic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FILE STRUCTURE ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">Project Structure</div>
+    <div class="section-title">Files in the Repository</div>
+    <div class="section-sub">The whole project is just 4 files. That's it.</div>
+
+    <div class="file-tree">
+      <span class="ft-folder">your-github-repo/</span><br>
+      &nbsp;&nbsp;<span class="ft-folder">├── .github/</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">└── workflows/</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── update-resume.yml</span>&nbsp;&nbsp;<span class="ft-comment">← tells GitHub when and how to run</span><br>
+      &nbsp;&nbsp;<span class="ft-folder">├── scripts/</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">├── package.json</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← list of dependencies to install</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── update-naukri.js</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← the main automation code</span><br>
+      &nbsp;&nbsp;<span class="ft-folder">└── resume/</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── resume.pdf</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← your actual resume goes here</span><br>
+    </div>
+  </div>
+
+  <!-- ── SECRETS SETUP ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">Credentials Setup</div>
+    <div class="section-title">What You Need to Create</div>
+    <div class="section-sub">Three secrets stored safely in GitHub — never exposed in the code.</div>
+
+    <div class="card">
+      <table class="secrets-table">
+        <thead>
+          <tr>
+            <th>Secret Name</th>
+            <th>What it is</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="secret-name">NAUKRI_EMAIL</span></td>
+            <td style="color:var(--muted);font-size:14px;">Your Naukri login email address</td>
+            <td><span class="secret-example">saurav@gmail.com</span></td>
+          </tr>
+          <tr>
+            <td><span class="secret-name">NAUKRI_PASSWORD</span></td>
+            <td style="color:var(--muted);font-size:14px;">Your Naukri account password</td>
+            <td><span class="secret-example">MyPassword@123</span></td>
+          </tr>
+          <tr>
+            <td><span class="secret-name">GMAIL_APP_PASSWORD</span></td>
+            <td style="color:var(--muted);font-size:14px;">A special 16-character password generated by Google — not your real Gmail password</td>
+            <td><span class="secret-example">abcdefghijklmnop</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="highlight">
+      <strong>Where to add these:</strong> Go to your GitHub repo → Settings → Secrets and variables → Actions → New repository secret. Add each one by name.
+    </div>
+  </div>
+
+  <!-- ── GMAIL APP PASSWORD ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">One-time setup</div>
+    <div class="section-title">How to Generate Gmail App Password</div>
+    <div class="section-sub">This takes about 2 minutes. You only do this once.</div>
+
+    <div class="card">
+      <div class="gmail-steps">
+
+        <div class="gmail-step">
+          <div class="gnum">1</div>
+          <div>
+            <div class="gmail-step-title">Turn on 2-Step Verification</div>
+            <div class="gmail-step-desc">Go to <a class="link" href="https://myaccount.google.com/security" target="_blank">myaccount.google.com/security</a> and make sure 2-Step Verification is switched ON. App Passwords only work when this is enabled.</div>
+          </div>
+        </div>
+
+        <div class="gmail-step">
+          <div class="gnum">2</div>
+          <div>
+            <div class="gmail-step-title">Open App Passwords page</div>
+            <div class="gmail-step-desc">Go to <a class="link" href="https://myaccount.google.com/apppasswords" target="_blank">myaccount.google.com/apppasswords</a> — you may be asked to log in again.</div>
+          </div>
+        </div>
+
+        <div class="gmail-step">
+          <div class="gnum">3</div>
+          <div>
+            <div class="gmail-step-title">Create a new App Password</div>
+            <div class="gmail-step-desc">In the text box, type <strong>Naukri Bot</strong> and click the <strong>Create</strong> button.</div>
+          </div>
+        </div>
+
+        <div class="gmail-step">
+          <div class="gnum">4</div>
+          <div>
+            <div class="gmail-step-title">Copy the 16-character code</div>
+            <div class="gmail-step-desc">Google shows you a code that looks like: <span class="secret-example">abcd efgh ijkl mnop</span> — copy it immediately. Remove the spaces when saving it. This is your <strong>GMAIL_APP_PASSWORD</strong>.</div>
+          </div>
+        </div>
+
+        <div class="gmail-step">
+          <div class="gnum">5</div>
+          <div>
+            <div class="gmail-step-title">Add it to GitHub Secrets</div>
+            <div class="gmail-step-desc">Paste the 16-char code (no spaces) as a GitHub secret named <span class="secret-name" style="font-size:12px;">GMAIL_APP_PASSWORD</span>. Done!</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>Why App Password and not your real Gmail password?</strong> Google blocks your real password when used by scripts for security. An App Password is a special code that only works for one specific app. You can delete it anytime without changing your main Gmail password.
+    </div>
+  </div>
+
+  <!-- ── OTP EXPLANATION ────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">The Smart Part</div>
+    <div class="section-title">How OTP Reading Works</div>
+    <div class="section-sub">This is what makes the project unique — fully automatic OTP handling.</div>
+
+    <div class="card-grid">
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;">IMAP Protocol</div>
+        <div style="font-size:14px;color:var(--muted);">IMAP is a standard email reading protocol. Think of it like a direct connection to your Gmail inbox — our script dials in, searches for the specific Naukri OTP email, reads it, and logs out. All within seconds.</div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">5-Minute Safety Window</div>
+        <div style="font-size:14px;color:var(--muted);">The script only looks at emails received in the last 5 minutes. This means it can never accidentally read an old OTP from a previous session or a different login attempt.</div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px;">Exact Subject Match</div>
+        <div style="font-size:14px;color:var(--muted);">It only picks emails with the exact subject: "Your OTP for logging in Naukri account" — so it never accidentally reads the wrong email, no matter how many emails are in your inbox.</div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:8px;">Multi-Layer Extraction</div>
+        <div style="font-size:14px;color:var(--muted);">The OTP is extracted using 5 different strategies — checking plain text, HTML content, raw MIME source — so it works even if Naukri changes their email format in the future.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COST ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label">Cost</div>
+    <div class="section-title">Completely Free to Run</div>
+    <div class="section-sub">GitHub gives 2,000 free minutes per month for private repos. We use less than 8%.</div>
+
+    <div class="card">
+      <div class="code-block">
+<span class="c-gray"># GitHub Actions Free Tier</span>
+Free minutes per month  : <span class="c-green">2,000 minutes</span>
+Each workflow run takes : <span class="c-blue">~4 minutes</span>
+Runs per month          : <span class="c-blue">30 runs</span>
+Total usage per month   : <span class="c-orange">~120 minutes</span>  <span class="c-gray">(only 6% of free quota)</span>
+
+<span class="c-gray"># Cost breakdown</span>
+GitHub Actions          : <span class="c-green">FREE</span>
+Gmail IMAP              : <span class="c-green">FREE</span>
+Playwright / Node.js    : <span class="c-green">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="footer">
+    <p>Built with Node.js · Playwright · GitHub Actions · Gmail IMAP</p>
+    <p style="margin-top:8px;">Saurav Thakur — Naukri Auto Resume Updater Project</p>
+  </div>
+
+</div>
+</body>
+</html>

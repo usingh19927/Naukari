@@ -1,0 +1,15 @@
+{
+  "name": "naukri-resume-updater",
+  "version": "1.0.0",
+  "dependencies": {
+    "playwright": "^1.44.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "imapflow": "^1.0.162",
+    "mailparser": "^3.6.5"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "install:browsers": "playwright install --with-deps"
+  }
+}
